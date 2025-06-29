@@ -4,8 +4,9 @@ use tokio::{
 };
 
 /// Public interface for the counter actor.
-pub trait CounterApi: Send + Sync + 'static {
+pub trait CounterApi: Clone + Send + Sync + 'static {
     fn ping(&self, increment: usize) -> impl Future<Output = usize> + Send;
+    fn read(&self) -> impl Future<Output = usize> + Send;
 }
 
 impl CounterApi for mpsc::Sender<CounterMsg> {
@@ -15,6 +16,10 @@ impl CounterApi for mpsc::Sender<CounterMsg> {
             .await
             .unwrap();
         recv.await.unwrap()
+    }
+
+    async fn read(&self) -> usize {
+        self.ping(0).await
     }
 }
 
@@ -35,7 +40,7 @@ impl Counter {
         Self { send, handle }
     }
 
-    pub fn api(&self) -> impl CounterApi {
+    pub fn api(&self) -> impl CounterApi + 'static {
         self.send.clone()
     }
 

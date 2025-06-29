@@ -1,6 +1,6 @@
 use tokio::signal;
 
-use actors::App;
+use actors::{App, AppConfig};
 
 async fn shutdown_signal() {
     let ctrl_c = async {
@@ -28,6 +28,7 @@ async fn shutdown_signal() {
 
 #[tokio::main]
 async fn main() {
-    let app = App::new();
-    app.wait_for_shutdown(shutdown_signal()).await;
+    let config = AppConfig::default();
+    let app = App::new(config, shutdown_signal()).await;
+    app.wait_for_shutdown().await;
 }
