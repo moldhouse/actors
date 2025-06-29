@@ -43,7 +43,7 @@ impl<C: CounterApi> RuntimeActor<C> {
                 () = tokio::time::sleep(Duration::from_secs(5)) => (),
             };
             let count = self.counter.ping(10).await;
-            println!("Count: {}", count);
+            println!("Count: {count}");
         }
     }
 }

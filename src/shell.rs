@@ -31,7 +31,7 @@ impl Shell {
     {
         let addr = addr.into();
         let listener = TcpListener::bind(addr).await.unwrap();
-        println!("Listening on {}", addr);
+        println!("Listening on {addr}");
 
         let handle = tokio::spawn(async move {
             let _ = axum::serve(listener, http(app_state))
