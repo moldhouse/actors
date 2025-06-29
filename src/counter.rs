@@ -6,6 +6,7 @@ pub struct Counter {
 }
 
 impl Counter {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self { count: 0 }
     }
