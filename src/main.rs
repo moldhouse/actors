@@ -1,11 +1,9 @@
-use std::future::pending;
-
-use actors::App;
+use actors::{App, AppConfig};
 
 fn main() {
     let fut = async move {
-        App::new();
-        pending::<()>().await;
+        let config = AppConfig::default();
+        let _app = App::new(config).await;
     };
     actix::System::new().block_on(fut);
 }

@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use actix::prelude::*;
 
-use crate::counter::{Counter, Ping};
+use crate::{Counter, counter::Ping};
 
 pub struct Runtime {
     counter: Addr<Counter>,
@@ -14,10 +14,12 @@ impl Runtime {
     }
 
     pub fn ping(&self) -> impl ActorFuture<Self, Output = ()> + 'static {
-        let counter = self.counter.clone();
-        counter.send(Ping(10)).into_actor(self).map(|res, _, _| {
-            println!("Result: {}", res.unwrap());
-        })
+        self.counter
+            .send(Ping(10))
+            .into_actor(self)
+            .map(|res, _, _| {
+                println!("Result: {}", res.unwrap());
+            })
     }
 }
 

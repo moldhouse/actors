@@ -1,5 +1,16 @@
 use actix::prelude::*;
 
+/// Public interface for the counter actor.
+pub trait CounterApi: Send + Sync + 'static {
+    fn read(&self) -> impl Future<Output = usize> + Send;
+}
+
+impl CounterApi for Addr<Counter> {
+    async fn read(&self) -> usize {
+        self.send(Ping(0)).await.unwrap()
+    }
+}
+
 /// An actor that can be pinged and will increment its count.
 pub struct Counter {
     count: usize,
