@@ -1,14 +1,16 @@
 mod counter;
-use actix::{Actor, System};
+mod runtime;
 
-use crate::counter::{Counter, Ping};
+use actix::Actor;
+use tokio::signal;
+
+use crate::{counter::Counter, runtime::Runtime};
 
 #[actix::main]
 async fn main() {
     let addr = Counter::new().start();
-    let res = addr.send(Ping(10)).await;
+    let runtime = Runtime::new(addr);
 
-    println!("Result: {}", res.unwrap());
-
-    System::current().stop();
+    runtime.start();
+    signal::ctrl_c().await.expect("Failed to listen for ctrl+c");
 }
