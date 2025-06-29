@@ -1,16 +1,33 @@
-mod counter;
-mod runtime;
-
-use actix::Actor;
 use tokio::signal;
 
-use crate::{counter::Counter, runtime::Runtime};
+use actors::App;
 
-#[actix::main]
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        () = ctrl_c => {},
+        () = terminate => {},
+    }
+}
+
+#[tokio::main]
 async fn main() {
-    let addr = Counter::new().start();
-    let runtime = Runtime::new(addr);
-
-    runtime.start();
-    signal::ctrl_c().await.expect("Failed to listen for ctrl+c");
+    let app = App::new();
+    app.wait_for_shutdown(shutdown_signal()).await;
 }
